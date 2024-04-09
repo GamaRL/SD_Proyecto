@@ -2,19 +2,26 @@ package mx.unam.fi.distributed.messages.settings;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import mx.unam.fi.distributed.messages.client.Client;
+import mx.unam.fi.distributed.messages.messages.Message;
 import mx.unam.fi.distributed.messages.node.Node;
-import mx.unam.fi.distributed.messages.server.IServer;
+import mx.unam.fi.distributed.messages.server.IMessageServer;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 @Configuration
 @RequiredArgsConstructor
+@Slf4j
 public class AppConfiguration {
 
-    private final IServer server;
+    private final IMessageServer server;
 
     @Value("${app.server.host}")
     private String host;
@@ -24,18 +31,23 @@ public class AppConfiguration {
             new Node("Nodo 2", "node_2", 5000)
     );
 
+    @Bean
+    public BlockingQueue<Message> incomingMessages() {
+        return new LinkedBlockingQueue<>();
+    };
+
     @PostConstruct
-    public void initThreads() {
-        server.start();
-
+    public void initThreads() throws InterruptedException {
         try {
-            Thread.sleep(1000);
-
-            for (var node : nodeList) {
-                new Client().sendMessage(node, String.format("Message from %s to %s", host, node.host()));
-            }
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            server.listen();
+        } catch (IOException e) {
+            log.error(e.getMessage());
         }
+
+        Thread.sleep(1000);
+        //new Client().sendMessage(nodeList.get(0), "Hola");
+        //new Client().sendMessage(nodeList.get(1), "Hola");
+
+        new Thread(server).start();
     }
 }

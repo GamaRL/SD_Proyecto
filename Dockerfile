@@ -4,4 +4,4 @@ ENV HOME=/app
 RUN mkdir -p $HOME
 WORKDIR $HOME
 
-ENTRYPOINT ["./mvnw", "spring-boot:run"]
+#ENTRYPOINT ["./mvnw", "spring-boot:run"]

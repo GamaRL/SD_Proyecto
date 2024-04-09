@@ -1,53 +1,49 @@
 package mx.unam.fi.distributed.messages.server;
 
-import lombok.RequiredArgsConstructor;
+
 import lombok.extern.slf4j.Slf4j;
+import mx.unam.fi.distributed.messages.messages.Message;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
+import java.time.LocalDateTime;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Semaphore;
 
-@RequiredArgsConstructor
 @Slf4j
 public class RequestHandler implements Runnable {
     private final BlockingQueue<Socket> pendingRequests;
-    private final Semaphore semaphore;
+    private final BlockingQueue<Message> incomingMessages;
 
-    private String processRequest(Socket socket) throws IOException {
-        String message;
+    public RequestHandler(BlockingQueue<Socket> pendingRequests, BlockingQueue<Message> incomingMessages) {
+        this.pendingRequests = pendingRequests;
+        this.incomingMessages = incomingMessages;
+    }
 
+    private Message processRequest() {
 
-        var in = new DataInputStream(socket.getInputStream());
-        var out = new DataOutputStream(socket.getOutputStream());
+        Message message = null;
+        log.info("Waiting");
+        try (
+                var socket = pendingRequests.take();
+                var out = new ObjectOutputStream(socket.getOutputStream());
+                var in = new ObjectInputStream(socket.getInputStream())
+        ) {
+            message = (Message) in.readObject();
+            out.writeObject(new Message("ACCEPTED", LocalDateTime.now()));
+            incomingMessages.add(message);
 
-        message = in.readUTF();
-        out.writeUTF("ACCEPTED");
-
+        } catch (IOException | ClassNotFoundException | InterruptedException e) {
+            log.info("An unexpected error occurred '{}'", e.getMessage());
+        }
 
         return message;
     }
 
     @Override
     public void run() {
-        String response;
-        try {
-            semaphore.acquire();
-
-            try (
-                    var socket = pendingRequests.take()
-            ) {
-                response = processRequest(socket);
-            }
-
-            log.info("Nes message {}", response);
-            semaphore.release();
-
-            semaphore.release();
-        } catch (InterruptedException | IOException e) {
-            throw new RuntimeException(e);
-        }
+        do {
+            Message response = processRequest();
+            log.info("New message '{}' at '{}'", response.message(), response.timestamp());
+        } while (true);
     }
 }
