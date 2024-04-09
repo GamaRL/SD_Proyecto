@@ -44,10 +44,6 @@ public class AppConfiguration {
             log.error(e.getMessage());
         }
 
-        Thread.sleep(1000);
-        //new Client().sendMessage(nodeList.get(0), "Hola");
-        //new Client().sendMessage(nodeList.get(1), "Hola");
-
         new Thread(server).start();
     }
 }

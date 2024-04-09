@@ -57,9 +57,7 @@ public class MessageServer implements IMessageServer {
 
         try {
             while (isAlive()) {
-                System.out.println(pendingRequests.size());
                 pendingRequests.put(socket.accept());
-                System.out.println(pendingRequests.size());
                 log.info("Processing requests");
             }
         } catch(Exception e) {

@@ -22,7 +22,6 @@ public class RequestHandler implements Runnable {
     private Message processRequest() {
 
         Message message = null;
-        log.info("Waiting");
         try (
                 var socket = pendingRequests.take();
                 var out = new ObjectOutputStream(socket.getOutputStream());

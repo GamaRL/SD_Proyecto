@@ -4,8 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import mx.unam.fi.distributed.messages.client.Client;
 import mx.unam.fi.distributed.messages.messages.Message;
 import mx.unam.fi.distributed.messages.node.Node;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -46,16 +44,26 @@ public class MessagesApplication implements CommandLineRunner {
 	private void showIncomingMessages() {
 		incomingMessages.clear();
 
-		while (true) {
-			var message = incomingMessages.poll();
-
-			if (message != null) {
-				System.out.printf("  - New incoming message: [%s] at [%s]", message.message(), message.timestamp().toString());
-			} else if (sc.hasNextLine()) {
-				sc.nextLine();
-				break;
+		var thread = new Thread(() -> {
+			while (true) {
+                Message message = null;
+                try {
+                    message = incomingMessages.take();
+                } catch (InterruptedException ignored) {
+					log.info("Finishing operation...");
+				} finally {
+					if (message != null) {
+						System.out.printf("  - New incoming message: [%s] at [%s]", message.message(), message.timestamp().toString());
+					}
+				}
 			}
-        }
+		});
+
+		thread.start();
+
+		sc.nextLine();
+
+		thread.interrupt();
 	}
 
 	@Override
@@ -90,7 +98,6 @@ public class MessagesApplication implements CommandLineRunner {
 				default:
 					System.out.println("Invalid option");
 			}
-			System.out.println(!hasFinished);
 		} while (!hasFinished);
 	}
 }
