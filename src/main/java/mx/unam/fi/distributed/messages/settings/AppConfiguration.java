@@ -3,7 +3,6 @@ package mx.unam.fi.distributed.messages.settings;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mx.unam.fi.distributed.messages.client.Client;
 import mx.unam.fi.distributed.messages.messages.Message;
 import mx.unam.fi.distributed.messages.node.Node;
 import mx.unam.fi.distributed.messages.server.IMessageServer;
@@ -12,7 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -23,13 +22,15 @@ public class AppConfiguration {
 
     private final IMessageServer server;
 
-    @Value("${app.server.host}")
-    private String host;
-
-    private final List<Node> nodeList = List.of(
-            new Node("Nodo 1", "node_1", 5000),
-            new Node("Nodo 2", "node_2", 5000)
-    );
+    @Bean
+    public Map<String, Node> host() {
+        return Map.of(
+                "node_1", new Node("node_1", "172.16.114.128", 5000),
+                "node_2", new Node("node_2", "172.16.114.129", 5000),
+                "node_3", new Node("node_3", "172.16.114.130", 5000),
+                "node_4", new Node("node_4", "172.16.114.131", 5000)
+        );
+    }
 
     @Bean
     public BlockingQueue<Message> incomingMessages() {

@@ -3,6 +3,7 @@ package mx.unam.fi.distributed.messages.server;
 import lombok.extern.slf4j.Slf4j;
 import mx.unam.fi.distributed.messages.MessagesApplication;
 import mx.unam.fi.distributed.messages.messages.Message;
+import mx.unam.fi.distributed.messages.storage.MessageRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -20,11 +21,17 @@ public class MessageServer implements IMessageServer {
     private boolean isAlive = false;
     private final int port;
     private final BlockingQueue<Socket> pendingRequests;
+    private final MessageRepository messageRepository;
+
+    @Value("${HOST}")
+    private String HOST;
 
     public MessageServer(
-            @Value("${app.server.port}") int port) {
+            @Value("${app.server.port}") int port,
+            MessageRepository messageRepository) {
         this.pendingRequests = new LinkedBlockingQueue<>(MAX_REQUESTS);
         this.port = port;
+        this.messageRepository = messageRepository;
     }
 
     @Override
@@ -51,7 +58,7 @@ public class MessageServer implements IMessageServer {
     public void run() {
 
         for (int i = 1; i <= MAX_REQUESTS; i++) {
-            Thread p = new Thread(new RequestHandler(pendingRequests, MessagesApplication.incomingMessages), String.format("ReqHandler-%d", i));
+            Thread p = new Thread(new RequestHandler(HOST, pendingRequests, MessagesApplication.incomingMessages, this.messageRepository), String.format("ReqHandler-%d", i));
             p.start();
         }
 

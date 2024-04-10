@@ -3,6 +3,7 @@ package mx.unam.fi.distributed.messages.server;
 
 import lombok.extern.slf4j.Slf4j;
 import mx.unam.fi.distributed.messages.messages.Message;
+import mx.unam.fi.distributed.messages.storage.MessageRepository;
 
 import java.io.*;
 import java.net.Socket;
@@ -13,10 +14,14 @@ import java.util.concurrent.BlockingQueue;
 public class RequestHandler implements Runnable {
     private final BlockingQueue<Socket> pendingRequests;
     private final BlockingQueue<Message> incomingMessages;
+    private final MessageRepository messageRepository;
+    private final String hostName;
 
-    public RequestHandler(BlockingQueue<Socket> pendingRequests, BlockingQueue<Message> incomingMessages) {
+    public RequestHandler(String hostName, BlockingQueue<Socket> pendingRequests, BlockingQueue<Message> incomingMessages, MessageRepository messageRepository) {
         this.pendingRequests = pendingRequests;
         this.incomingMessages = incomingMessages;
+        this.messageRepository = messageRepository;
+        this.hostName = hostName;
     }
 
     private Message processRequest() {
@@ -28,8 +33,9 @@ public class RequestHandler implements Runnable {
                 var in = new ObjectInputStream(socket.getInputStream())
         ) {
             message = (Message) in.readObject();
-            out.writeObject(new Message("ACCEPTED", LocalDateTime.now()));
+            out.writeObject(new Message(hostName, "ACCEPTED", LocalDateTime.now()));
             incomingMessages.add(message);
+            messageRepository.saveMessage(message);
 
         } catch (IOException | ClassNotFoundException | InterruptedException e) {
             log.info("An unexpected error occurred '{}'", e.getMessage());

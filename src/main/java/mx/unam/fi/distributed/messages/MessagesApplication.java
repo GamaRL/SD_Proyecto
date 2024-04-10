@@ -1,21 +1,33 @@
 package mx.unam.fi.distributed.messages;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mx.unam.fi.distributed.messages.client.Client;
 import mx.unam.fi.distributed.messages.messages.Message;
 import mx.unam.fi.distributed.messages.node.Node;
+import mx.unam.fi.distributed.messages.storage.MessageRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 @SpringBootApplication
 @Slf4j
+@RequiredArgsConstructor
 public class MessagesApplication implements CommandLineRunner {
+
+
+	private final MessageRepository messageRepository;
+	private final Map<String, Node> hosts;
+
+	@Value("${HOST}")
+	private String host;
 
 	private static final Scanner sc = new Scanner(System.in);
 	public static final BlockingQueue<Message> incomingMessages = new LinkedBlockingQueue<>();
@@ -27,18 +39,36 @@ public class MessagesApplication implements CommandLineRunner {
 	private void sendMessage() {
 		System.out.print(" * Write the host: ");
 		var host = sc.nextLine().trim();
-		System.out.print(" * Write the message: ");
-		var message = sc.nextLine().trim();
 
-		System.out.printf("Sending [%s] to [%s]\n", message, host);
-		var messageObj = new Message(message, LocalDateTime.now());
-		var responseObj = new Client().sendMessage(new Node(host, host, 5000), messageObj).orElseThrow();
+		if (hosts.containsKey(host)) {
+			System.out.print(" * Write the message: ");
+			var message = sc.nextLine().trim();
 
-		System.out.printf("Response from server was [%s] at [%s]\n", responseObj.message(), responseObj.timestamp());
+			System.out.printf("Sending [%s] to [%s]\n", message, host);
+			var messageObj = new Message(host, message, LocalDateTime.now());
+			var responseObj = new Client().sendMessage(hosts.get(host), messageObj).orElseThrow();
+			messageRepository.saveMessage(responseObj);
+
+			System.out.printf("Response from server was [%s] at [%s]\n", responseObj.message(), responseObj.timestamp());
+		} else {
+			System.out.println("Unable to find that node");
+		}
 	}
 
 	private void showPreviousMessages() {
-		System.out.println("[There are no messages]");
+		var messages = messageRepository.getMessages();
+
+		if (messages.iterator().hasNext()) {
+			messages.forEach(m -> {
+				System.out.println("{");
+				System.out.printf("\t'from': '%s'\n", m.from());
+				System.out.printf("\t'message': '%s'\n", m.message());
+				System.out.printf("\t'timestamp': '%s'\n", m.timestamp());
+				System.out.println("}");
+			});
+		} else {
+			System.out.println("[There are no messages]");
+		}
 	}
 
 	private void showIncomingMessages() {
@@ -53,7 +83,7 @@ public class MessagesApplication implements CommandLineRunner {
 					log.info("Finishing operation...");
 				} finally {
 					if (message != null) {
-						System.out.printf("  - New incoming message: [%s] at [%s]", message.message(), message.timestamp().toString());
+						System.out.printf("  - New incoming message: [%s] at [%s]\n", message.message(), message.timestamp().toString());
 					}
 				}
 			}
