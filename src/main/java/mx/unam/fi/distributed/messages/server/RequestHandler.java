@@ -33,9 +33,11 @@ public class RequestHandler implements Runnable {
                 var in = new ObjectInputStream(socket.getInputStream())
         ) {
             message = (Message) in.readObject();
-            out.writeObject(new Message(hostName, "ACCEPTED", LocalDateTime.now()));
+            var response = new Message(hostName, "ACCEPTED", LocalDateTime.now());
+            out.writeObject(response);
             incomingMessages.add(message);
             messageRepository.saveMessage(message);
+            messageRepository.saveMessage(response);
 
         } catch (IOException | ClassNotFoundException | InterruptedException e) {
             log.info("An unexpected error occurred '{}'", e.getMessage());

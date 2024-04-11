@@ -27,7 +27,7 @@ public class MessagesApplication implements CommandLineRunner {
 	private final Map<String, Node> hosts;
 
 	@Value("${HOST}")
-	private String host;
+	private String currentHost;
 
 	private static final Scanner sc = new Scanner(System.in);
 	public static final BlockingQueue<Message> incomingMessages = new LinkedBlockingQueue<>();
@@ -45,8 +45,9 @@ public class MessagesApplication implements CommandLineRunner {
 			var message = sc.nextLine().trim();
 
 			System.out.printf("Sending [%s] to [%s]\n", message, host);
-			var messageObj = new Message(host, message, LocalDateTime.now());
+			var messageObj = new Message(currentHost, message, LocalDateTime.now());
 			var responseObj = new Client().sendMessage(hosts.get(host), messageObj).orElseThrow();
+			messageRepository.saveMessage(messageObj);
 			messageRepository.saveMessage(responseObj);
 
 			System.out.printf("Response from server was [%s] at [%s]\n", responseObj.message(), responseObj.timestamp());
@@ -81,6 +82,7 @@ public class MessagesApplication implements CommandLineRunner {
                     message = incomingMessages.take();
                 } catch (InterruptedException ignored) {
 					log.info("Finishing operation...");
+					break;
 				} finally {
 					if (message != null) {
 						System.out.printf("  - New incoming message: [%s] at [%s]\n", message.message(), message.timestamp().toString());
