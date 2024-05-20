@@ -1,23 +1,25 @@
 services:
   node_1:
-    image: message_mode
-    volumes:
-      - ./:/app
     working_dir: /app
     environment:
       - HOST=node_1
+      - NODE_N=1
       - PORT=5000
+    build:
+      context: .
+      dockerfile: Dockerfile
     networks:
       messages_app_network:
         ipv4_address: 10.5.0.5
   node_2:
-    image: message_mode
-    volumes:
-      - ./:/app
     working_dir: /app
     environment:
       - HOST=node_2
+      - NODE_N=2
       - PORT=5000
+    build:
+      context: .
+      dockerfile: Dockerfile
     networks:
       messages_app_network:
         ipv4_address: 10.5.0.6

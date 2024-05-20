@@ -2,9 +2,12 @@ package mx.unam.fi.distributed.messages.server;
 
 import lombok.extern.slf4j.Slf4j;
 import mx.unam.fi.distributed.messages.MessagesApplication;
+import mx.unam.fi.distributed.messages.listeners.MessageEvent;
 import mx.unam.fi.distributed.messages.messages.Message;
 import mx.unam.fi.distributed.messages.storage.MessageRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -15,6 +18,9 @@ import java.util.concurrent.*;
 @Service
 @Slf4j
 public class MessageServer implements IMessageServer {
+
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     private static final int MAX_REQUESTS = 10;
     private ServerSocket socket;
@@ -57,14 +63,9 @@ public class MessageServer implements IMessageServer {
     @Override
     public void run() {
 
-        for (int i = 1; i <= MAX_REQUESTS; i++) {
-            Thread p = new Thread(new RequestHandler(HOST, pendingRequests, MessagesApplication.incomingMessages, this.messageRepository), String.format("ReqHandler-%d", i));
-            p.start();
-        }
-
         try {
             while (isAlive()) {
-                pendingRequests.put(socket.accept());
+                eventPublisher.publishEvent(new MessageEvent(this, socket.accept()));
                 log.info("Processing requests");
             }
         } catch(Exception e) {

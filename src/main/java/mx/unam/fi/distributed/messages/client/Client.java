@@ -1,27 +1,39 @@
 package mx.unam.fi.distributed.messages.client;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import mx.unam.fi.distributed.messages.listeners.NoReachableNodeEvent;
 import mx.unam.fi.distributed.messages.messages.Message;
 import mx.unam.fi.distributed.messages.node.Node;
+import mx.unam.fi.distributed.messages.repositories.NodeRepository;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.Optional;
 
+@Service
+@AllArgsConstructor
 @Slf4j
 public class Client implements IClient {
+
+    private final NodeRepository nodeRepository;
+    private final ApplicationEventPublisher eventPublisher;
+
     @Override
     public Optional<Message> sendMessage(Node destination, Message message) {
-        Message response;
+        Message response = null;
         try (
-                Socket socket = new Socket(destination.host(), destination.port());
-                var in = new ObjectInputStream(socket.getInputStream());
-                var out = new ObjectOutputStream(socket.getOutputStream())
+                Socket socket = new Socket();
         ) {
-
+            socket.connect(new InetSocketAddress(destination.host(), destination.port()), 1000);
+            var in = new ObjectInputStream(socket.getInputStream());
+            var out = new ObjectOutputStream(socket.getOutputStream());
+            socket.setSoTimeout(1000);
             log.info("Sending a message: {}", message);
 
             out.writeObject(message);
@@ -29,6 +41,13 @@ public class Client implements IClient {
 
             log.info("Response from server was: {}", response);
 
+            in.close();
+            out.close();
+
+        } catch (SocketTimeoutException e) {
+            eventPublisher.publishEvent(new NoReachableNodeEvent(this, destination));
+
+            log.info("REMOVING {} BECAUSE IS NOT AVAILABLE", destination);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
