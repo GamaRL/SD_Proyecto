@@ -3,21 +3,20 @@ package mx.unam.fi.distributed.messages.settings;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mx.unam.fi.distributed.messages.client.Client;
-import mx.unam.fi.distributed.messages.client.IClient;
 import mx.unam.fi.distributed.messages.messages.Message;
-import mx.unam.fi.distributed.messages.node.Node;
-import mx.unam.fi.distributed.messages.repositories.NodeRepository;
 import mx.unam.fi.distributed.messages.server.IMessageServer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 
 @Configuration
 @EnableAsync
@@ -26,8 +25,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class AppConfiguration {
 
     private final IMessageServer server;
-    private final IClient client;
-    private final NodeRepository nodeRepository;
+    private final HeartBeat heartBeat;
+
 
     @Bean
     public BlockingQueue<Message> incomingMessages() {
@@ -35,21 +34,12 @@ public class AppConfiguration {
     };
 
     @PostConstruct
-    public void initThreads() throws InterruptedException {
-        try {
-            server.listen();
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
+    public void initThreads() throws IOException, InterruptedException {
+        ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(2);
+        server.listen();
 
-        new Thread(server).start();
-
-        Thread.sleep(500);
-
-        nodeRepository.getNodes().forEach((n) -> {
-            System.out.println(n);
-            var res = client.sendMessage(n, new Message("Me.", "Hola", LocalDateTime.now()));
-            System.out.println(res);
-        });
+        Thread.sleep(1000);
+        executor.execute(server);
+        executor.execute(heartBeat);
     }
 }

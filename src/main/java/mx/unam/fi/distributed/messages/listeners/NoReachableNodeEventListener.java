@@ -4,11 +4,9 @@ import lombok.AllArgsConstructor;
 import mx.unam.fi.distributed.messages.repositories.NodeRepository;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
 
 @Component
-@EnableAsync
 @AllArgsConstructor
 public class NoReachableNodeEventListener implements ApplicationListener<NoReachableNodeEvent> {
 

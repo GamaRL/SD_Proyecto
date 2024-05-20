@@ -7,8 +7,6 @@ import mx.unam.fi.distributed.messages.storage.MessageRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -17,7 +15,6 @@ import java.io.ObjectOutputStream;
 import java.time.LocalDateTime;
 
 @Component
-@EnableAsync
 @RequiredArgsConstructor
 @Slf4j
 public class MessageEventListener implements ApplicationListener<MessageEvent>{
@@ -37,7 +34,6 @@ public class MessageEventListener implements ApplicationListener<MessageEvent>{
                 var in = new ObjectInputStream(socket.getInputStream())
         ) {
             var message = (Message) in.readObject();
-            System.out.println("- ACCEPTING FROM HERE");
             var response = new Message(hostName, "ACCEPTED", LocalDateTime.now());
             out.writeObject(response);
             messageRepository.saveMessage(message);

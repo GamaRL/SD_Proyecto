@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -25,7 +26,7 @@ public class Client implements IClient {
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
-    public Optional<Message> sendMessage(Node destination, Message message) {
+    public synchronized Optional<Message> sendMessage(Node destination, Message message) {
         Message response = null;
         try (
                 Socket socket = new Socket();
@@ -49,6 +50,7 @@ public class Client implements IClient {
 
             log.info("REMOVING {} BECAUSE IS NOT AVAILABLE", destination);
         } catch (Exception e) {
+            System.out.println(e.getMessage());;
             throw new RuntimeException(e);
         }
 

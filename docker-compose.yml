@@ -11,6 +11,7 @@ services:
     networks:
       messages_app_network:
         ipv4_address: 10.5.0.5
+
   node_2:
     working_dir: /app
     environment:
@@ -23,6 +24,19 @@ services:
     networks:
       messages_app_network:
         ipv4_address: 10.5.0.6
+
+  node_3:
+    working_dir: /app
+    environment:
+      - HOST=node_3
+      - NODE_N=3
+      - PORT=5000
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      messages_app_network:
+        ipv4_address: 10.5.0.7
 
 networks:
   messages_app_network:

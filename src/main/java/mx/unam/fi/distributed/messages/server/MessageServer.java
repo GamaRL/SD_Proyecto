@@ -1,44 +1,30 @@
 package mx.unam.fi.distributed.messages.server;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mx.unam.fi.distributed.messages.MessagesApplication;
 import mx.unam.fi.distributed.messages.listeners.MessageEvent;
-import mx.unam.fi.distributed.messages.messages.Message;
-import mx.unam.fi.distributed.messages.storage.MessageRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.concurrent.*;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class MessageServer implements IMessageServer {
 
-    @Autowired
-    private ApplicationEventPublisher eventPublisher;
-
-    private static final int MAX_REQUESTS = 10;
     private ServerSocket socket;
     private boolean isAlive = false;
-    private final int port;
-    private final BlockingQueue<Socket> pendingRequests;
-    private final MessageRepository messageRepository;
 
-    @Value("${HOST}")
+    @Value("${app.server.host}")
     private String HOST;
+    @Value("${app.server.port}")
+    private int port;
 
-    public MessageServer(
-            @Value("${app.server.port}") int port,
-            MessageRepository messageRepository) {
-        this.pendingRequests = new LinkedBlockingQueue<>(MAX_REQUESTS);
-        this.port = port;
-        this.messageRepository = messageRepository;
-    }
+    private final ApplicationEventPublisher eventPublisher;
+
 
     @Override
     public void listen() throws IOException {
@@ -58,7 +44,6 @@ public class MessageServer implements IMessageServer {
     public boolean isAlive() {
         return isAlive;
     }
-
 
     @Override
     public void run() {

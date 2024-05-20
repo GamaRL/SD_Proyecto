@@ -14,7 +14,7 @@ public class NodeRepository {
     private final Map<Integer, Node> _hosts = Map.of(
         1, new Node("node_1", "10.5.0.5", 1, 5000),
         2, new Node("node_2", "10.5.0.6", 2, 5000),
-        3, new Node("node_3", "172.16.114.130", 3, 5000),
+        3, new Node("node_3", "10.5.0.7", 3, 5000),
         4, new Node("node_4", "172.16.114.131", 4, 5000)
     );
 
@@ -56,5 +56,9 @@ public class NodeRepository {
 
     public List<Node> getNodes() {
         return new ArrayList<>(hosts.values());
+    }
+
+    public List<Integer> getNodesId() {
+        return this.hosts.keySet().stream().toList();
     }
 }
