@@ -25,7 +25,7 @@ public class AppConfiguration {
     @Bean
     public BlockingQueue<Message> incomingMessages() {
         return new LinkedBlockingQueue<>();
-    };
+    }
 
     @Bean
     public Semaphore globalLock() {

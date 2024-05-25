@@ -18,8 +18,6 @@ public class MessageServer implements IMessageServer {
     private ServerSocket socket;
     private boolean isAlive = false;
 
-    @Value("${app.server.host}")
-    private String HOST;
     @Value("${app.server.port}")
     private int port;
 

@@ -20,14 +20,13 @@ import java.util.Optional;
 @Slf4j
 public class Client implements IClient {
 
-    private final NodeRepository nodeRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public synchronized Optional<Message> sendMessage(Node destination, Message message) {
         Message response = null;
         try (
-                Socket socket = new Socket();
+                Socket socket = new Socket()
         ) {
             socket.connect(new InetSocketAddress(destination.host(), destination.port()), 1000);
             var in = new ObjectInputStream(socket.getInputStream());
@@ -48,7 +47,7 @@ public class Client implements IClient {
 
             log.info("REMOVING {} BECAUSE IS NOT AVAILABLE", destination);
         } catch (Exception e) {
-            System.out.println(e.getMessage());;
+            System.out.println(e.getMessage());
             throw new RuntimeException(e);
         }
 

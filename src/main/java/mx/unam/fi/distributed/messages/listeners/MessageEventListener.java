@@ -30,8 +30,6 @@ public class MessageEventListener implements ApplicationListener<MessageEvent>{
     private final Client client;
     private final NodeRepository nodeRepository;
 
-    @Value("${app.server.host}")
-    private String hostName;
     @Value("${app.server.node_n}")
     private int nodeN;
 
