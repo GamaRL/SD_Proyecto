@@ -9,12 +9,10 @@ import mx.unam.fi.distributed.messages.repositories.NodeRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import java.io.EOFException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.ConnectException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketTimeoutException;
+import java.net.*;
 import java.util.Optional;
 
 @Service
@@ -45,7 +43,7 @@ public class Client implements IClient {
             in.close();
             out.close();
 
-        } catch (SocketTimeoutException e) {
+        } catch (SocketTimeoutException | SocketException | EOFException e) {
             eventPublisher.publishEvent(new NoReachableNodeEvent(this, destination));
 
             log.info("REMOVING {} BECAUSE IS NOT AVAILABLE", destination);

@@ -51,10 +51,10 @@ public class MessageServer implements IMessageServer {
         try {
             while (isAlive()) {
                 eventPublisher.publishEvent(new MessageEvent(this, socket.accept()));
-                log.info("Processing requests");
             }
         } catch(Exception e) {
             log.error(e.getMessage());
+            e.printStackTrace();
         }
     }
 }
