@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import mx.unam.fi.distributed.messages.client.Client;
 import mx.unam.fi.distributed.messages.messages.Message;
 import mx.unam.fi.distributed.messages.repositories.NodeRepository;
+import mx.unam.fi.distributed.messages.services.AppUserService;
 import mx.unam.fi.distributed.messages.storage.MessageRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
@@ -29,6 +30,7 @@ public class MessageEventListener implements ApplicationListener<MessageEvent>{
     private final Semaphore lock;
     private final Client client;
     private final NodeRepository nodeRepository;
+    private final AppUserService appUserService;
 
     @Value("${app.server.node_n}")
     private int nodeN;
@@ -47,7 +49,6 @@ public class MessageEventListener implements ApplicationListener<MessageEvent>{
                         System.out.println(lock.availablePermits());
 
                         lock.release();
-                        System.out.println("Ajua!");
 
                         Thread.yield();
 
@@ -74,6 +75,13 @@ public class MessageEventListener implements ApplicationListener<MessageEvent>{
 
                     if (!nodeRepository.containsNode(message.from()))
                         nodeRepository.addNode(message.from());
+
+                    break;
+
+                case "CREATE-APP-USER":
+
+                    System.out.println(args);
+                    appUserService.forceCreate(Long.parseLong(args[1]), args[2], args[3], args[4]);
 
                     break;
 

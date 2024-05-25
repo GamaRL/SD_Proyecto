@@ -1,8 +1,6 @@
 package mx.unam.fi.distributed.messages.repositories;
 
 import mx.unam.fi.distributed.messages.node.Node;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
@@ -13,7 +11,7 @@ import java.util.Map;
 
 @Repository
 public class NodeRepository {
-    private static final Logger log = LoggerFactory.getLogger(NodeRepository.class);
+
     private final Map<Integer, Node> _hosts = Map.of(
         1, new Node("node_1", "10.5.0.5", 1, 5000),
         2, new Node("node_2", "10.5.0.6", 2, 5000),
@@ -65,5 +63,9 @@ public class NodeRepository {
 
     public boolean containsNode(int id) {
         return hosts.values().stream().anyMatch(n -> n.id() == id);
+    }
+
+    public List<Node> getOtherNodes() {
+        return getNodes().stream().filter(i -> i.id() != node_n).toList();
     }
 }

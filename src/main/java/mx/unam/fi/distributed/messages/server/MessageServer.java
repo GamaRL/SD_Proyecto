@@ -52,7 +52,6 @@ public class MessageServer implements IMessageServer {
             }
         } catch(Exception e) {
             log.error(e.getMessage());
-            e.printStackTrace();
         }
     }
 }

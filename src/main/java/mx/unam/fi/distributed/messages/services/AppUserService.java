@@ -1,11 +1,67 @@
 package mx.unam.fi.distributed.messages.services;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import mx.unam.fi.distributed.messages.client.Client;
+import mx.unam.fi.distributed.messages.messages.Message;
 import mx.unam.fi.distributed.messages.models.AppUser;
+import mx.unam.fi.distributed.messages.repositories.AppUserRepository;
+import mx.unam.fi.distributed.messages.repositories.NodeRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-@Service
-public class AppUserService {
-    public void addUser(AppUser user) {
+import java.time.LocalDateTime;
+import java.util.concurrent.Semaphore;
 
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class AppUserService {
+
+    private final Semaphore lock;
+    private final AppUserRepository appUserRepository;
+    private final Client client;
+    private final NodeRepository nodeRepository;
+
+    @Value("${app.server.node_n}")
+    private int node_n;
+
+
+    /**
+     * Método para realizar la insreción de un usuario desde el mismo nodo de ejecución. A través
+     * de este método, el usuario se crea, se le asigna un id y se dispara la inserción del usuario
+     * en los demás nodos.
+     * @param name el nombre del usuario
+     * @param mail el correo electrónico del usuario
+     * @param telephone el número e teléfono del usuario
+     */
+    public void create(String name, String mail, String telephone) {
+
+        try {
+            lock.acquire();
+
+            var user = appUserRepository.save(new AppUser(null, name, mail, telephone));
+            var message = String.format("CREATE-APP-USER;%s;%s;%s;%s", user.getId(), user.getName(), user.getMail(), user.getTelephone());
+            nodeRepository.getOtherNodes().forEach(n -> {
+                client.sendMessage(n, new Message(node_n, message, LocalDateTime.now()));
+            });
+
+            lock.release();
+        } catch (InterruptedException e) {
+            log.error("An error happened when creating user: '{}'", e.getMessage());
+        }
+    }
+
+    /**
+     * Método para realizar la insersión del usuario que se realizó desde otro nodo
+     * @param id el id asignao al usuario en el nodo de creación
+     * @param name el nombre del usuario
+     * @param mail el correo electrónico del usuario
+     * @param telephone el número e teléfono del usuario
+     */
+    public void forceCreate(Long id, String name, String mail, String telephone) {
+        var user = appUserRepository.save(new AppUser(id, name, mail, telephone));
+
+        log.info("User was created: {}", user);
     }
 }

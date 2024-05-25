@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import mx.unam.fi.distributed.messages.listeners.NoReachableNodeEvent;
 import mx.unam.fi.distributed.messages.messages.Message;
 import mx.unam.fi.distributed.messages.node.Node;
-import mx.unam.fi.distributed.messages.repositories.NodeRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
