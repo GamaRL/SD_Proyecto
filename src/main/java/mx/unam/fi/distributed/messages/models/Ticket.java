@@ -15,6 +15,9 @@ public class Ticket {
     @Column(name = "ticket_id")
     private Integer id;
 
+    @Column(name = "invoice")
+    private String invoice;
+
     @Column(name = "open_date")
     private LocalDateTime openDate;
 

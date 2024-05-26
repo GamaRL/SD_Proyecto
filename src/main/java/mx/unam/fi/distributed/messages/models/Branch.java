@@ -5,27 +5,26 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
-@Table(name = "device")
+@Table
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Device {
+public class Branch {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "device_id")
+    @Column(name = "branch_id")
     private Long id;
 
     @Column(name = "name")
     private String name;
 
-    @Column(name = "type")
-    private String type;
+    @Column(name = "address")
+    private String address;
 
-    @Column(name = "serial_number", length = 10)
-    private String serialNumber;
-
-    @ManyToOne
-    @JoinColumn(name = "branch_id", referencedColumnName = "branch_id")
-    private Branch branch;
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "branch")
+    private List<Device> devices;
 }

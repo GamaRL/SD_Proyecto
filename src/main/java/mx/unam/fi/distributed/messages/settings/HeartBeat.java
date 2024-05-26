@@ -23,9 +23,7 @@ public class HeartBeat implements Runnable {
     private int nodeN;
 
     private void sendMulticastMessage() {
-        nodeRepository.getNodes().forEach((n) -> {
-            client.sendMessage(n, new Message(nodeN, "HELLO", LocalDateTime.now()));
-        });
+        nodeRepository.getNodes().forEach((n) -> client.sendMessage(n, new Message(nodeN, "HELLO", LocalDateTime.now())));
     }
 
     @Override
@@ -47,7 +45,6 @@ public class HeartBeat implements Runnable {
 
                     if (!isMaster) {
                         var newToken = String.format("TOKEN;%d", nodeN);
-                        log.info("Hey! Sening a new token!!");
                         System.out.println("Sending the message...");
                         log.info("Node: {}", nodeRepository.getNextNode(nodeN));
                         client.sendMessage(nodeRepository.getNextNode(nodeN), new Message(nodeN, newToken, LocalDateTime.now()));

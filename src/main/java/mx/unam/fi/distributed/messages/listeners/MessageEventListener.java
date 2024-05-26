@@ -6,6 +6,7 @@ import mx.unam.fi.distributed.messages.client.Client;
 import mx.unam.fi.distributed.messages.messages.Message;
 import mx.unam.fi.distributed.messages.repositories.NodeRepository;
 import mx.unam.fi.distributed.messages.services.AppUserService;
+import mx.unam.fi.distributed.messages.services.DeviceService;
 import mx.unam.fi.distributed.messages.storage.MessageRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
@@ -31,6 +32,7 @@ public class MessageEventListener implements ApplicationListener<MessageEvent>{
     private final Client client;
     private final NodeRepository nodeRepository;
     private final AppUserService appUserService;
+    private final DeviceService deviceService;
 
     @Value("${app.server.node_n}")
     private int nodeN;
@@ -42,9 +44,11 @@ public class MessageEventListener implements ApplicationListener<MessageEvent>{
             var type = args[0];
 
             log.info("Processing message type: {}", type);
+
+            var masterId = nodeRepository.getNodesId().stream().mapToInt(i -> i).max().orElse(nodeN);
+
             switch (type) {
                 case "TOKEN":
-                    var masterId = nodeRepository.getNodesId().stream().mapToInt(i -> i).max().orElse(nodeN);
                     if (masterId == Integer.parseInt(args[1])) {
                         System.out.println(lock.availablePermits());
 
@@ -58,15 +62,13 @@ public class MessageEventListener implements ApplicationListener<MessageEvent>{
                             throw new RuntimeException(e);
                         }
 
-                        var newToken = String.format("TOKEN;%d", masterId);
-
                         client.sendMessage(
-                                nodeRepository.getNextNode(nodeN),
-                                new Message(
-                                        nodeN,
-                                        newToken,
-                                        LocalDateTime.now()
-                                )
+                            nodeRepository.getNextNode(nodeN),
+                            new Message(
+                                nodeN,
+                                message.message(),
+                                LocalDateTime.now()
+                            )
                         );
                     }
                     break;
@@ -80,9 +82,18 @@ public class MessageEventListener implements ApplicationListener<MessageEvent>{
 
                 case "CREATE-APP-USER":
 
-                    System.out.println(args);
                     appUserService.forceCreate(Long.parseLong(args[1]), args[2], args[3], args[4]);
 
+                    break;
+
+                case "CREATE-DEVICE-TO-MASTER":
+                    if (masterId == nodeN) {
+                        deviceService.createFromMaster(args[1], args[2], args[3]);
+                    }
+                    break;
+
+                case "CREATE-DEVICE-FROM-MASTER":
+                    deviceService.forceCreate(Long.parseLong(args[1]), args[2], args[3], args[4], Long.parseLong(args[5]));
                     break;
 
                 default:

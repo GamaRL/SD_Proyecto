@@ -19,7 +19,7 @@ public class MessageRepository {
         var messagesFile = new File("messages.ser");
         lock.lock();
         try (
-                var fileOutputStream = new FileOutputStream("messages.ser", true);
+                var fileOutputStream = new FileOutputStream("messages.ser", true)
         ) {
             if (messagesFile.length() == 0) {
                 var objectOutputStream = new ObjectOutputStream(fileOutputStream);
@@ -42,14 +42,14 @@ public class MessageRepository {
         var messagesList = new ArrayList<Message>();
         try (
                 var fileInputStream = new FileInputStream("messages.ser");
-                var objectInputStream = new ObjectInputStream(fileInputStream);
+                var objectInputStream = new ObjectInputStream(fileInputStream)
         ) {
             Message message;
 
             while (fileInputStream.available() != 0) {
                 message = (Message)objectInputStream.readObject();
                 messagesList.add(message);
-            };
+            }
         } catch (IOException | ClassNotFoundException e) {
             log.error(e.getMessage());
         }

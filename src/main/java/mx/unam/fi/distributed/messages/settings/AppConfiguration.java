@@ -21,7 +21,6 @@ public class AppConfiguration {
     private final IMessageServer server;
     private final HeartBeat heartBeat;
 
-
     @Bean
     public BlockingQueue<Message> incomingMessages() {
         return new LinkedBlockingQueue<>();
@@ -29,7 +28,6 @@ public class AppConfiguration {
 
     @Bean
     public Semaphore globalLock() {
-
         return new Semaphore(0);
     }
 

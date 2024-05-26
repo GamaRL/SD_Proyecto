@@ -26,9 +26,8 @@ public class AppUserService {
     @Value("${app.server.node_n}")
     private int node_n;
 
-
     /**
-     * Método para realizar la insreción de un usuario desde el mismo nodo de ejecución. A través
+     * Método para realizar la inserción de un usuario desde el mismo nodo de ejecución. A través
      * de este método, el usuario se crea, se le asigna un id y se dispara la inserción del usuario
      * en los demás nodos.
      * @param name el nombre del usuario
@@ -42,9 +41,9 @@ public class AppUserService {
 
             var user = appUserRepository.save(new AppUser(null, name, mail, telephone));
             var message = String.format("CREATE-APP-USER;%s;%s;%s;%s", user.getId(), user.getName(), user.getMail(), user.getTelephone());
-            nodeRepository.getOtherNodes().forEach(n -> {
-                client.sendMessage(n, new Message(node_n, message, LocalDateTime.now()));
-            });
+
+            // Notificar a los demás nodos
+            nodeRepository.getOtherNodes().forEach(n -> client.sendMessage(n, new Message(node_n, message, LocalDateTime.now())));
 
             lock.release();
         } catch (InterruptedException e) {
@@ -53,8 +52,8 @@ public class AppUserService {
     }
 
     /**
-     * Método para realizar la insersión del usuario que se realizó desde otro nodo
-     * @param id el id asignao al usuario en el nodo de creación
+     * Método para realizar la inserción del usuario que se realizó desde otro nodo
+     * @param id el id asignado al usuario en el nodo de creación
      * @param name el nombre del usuario
      * @param mail el correo electrónico del usuario
      * @param telephone el número e teléfono del usuario
