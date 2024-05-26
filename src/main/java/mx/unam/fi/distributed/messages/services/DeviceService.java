@@ -13,10 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
-import java.util.Map;
 import java.util.concurrent.Semaphore;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -70,9 +67,7 @@ public class DeviceService {
                     device.getSerialNumber(),
                     device.getBranch().getId());
 
-            nodeRepository.getOtherNodes().forEach(n -> {
-                client.sendMessage(n, new Message(node_n, message, LocalDateTime.now()));
-            });
+            nodeRepository.getOtherNodes().forEach(n -> client.sendMessage(n, new Message(node_n, message, LocalDateTime.now())));
 
             lock.release();
         } catch (InterruptedException e) {
