@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mx.unam.fi.distributed.messages.client.Client;
 import mx.unam.fi.distributed.messages.messages.Message;
+import mx.unam.fi.distributed.messages.models.Branch;
 import mx.unam.fi.distributed.messages.models.Device;
 import mx.unam.fi.distributed.messages.repositories.BranchRepository;
 import mx.unam.fi.distributed.messages.repositories.DeviceRepository;
@@ -46,17 +47,19 @@ public class DeviceService {
         }
     }
 
+    private Branch getNextAvailableBranch() {
+        return branchRepository.findAllById(nodeRepository.getNodesId().stream().mapToLong(i -> i).boxed().toList())
+                .stream()
+                .min(Comparator.comparing(b -> b.getDevices().size()))
+                .orElseThrow();
+    }
+
     public void createFromMaster(String name, String type, String serialNumber) {
 
         try {
             lock.acquire();
 
-            var branch = branchRepository.findAllById(nodeRepository.getNodesId().stream().mapToLong(i -> i).boxed().toList())
-                    .stream()
-                    .min(Comparator.comparing(b -> b.getDevices().size()))
-                    .orElseThrow();
-
-            Thread.sleep(3000);
+            var branch = getNextAvailableBranch();
 
             var device = deviceRepository.save(new Device(null, name, type, serialNumber, branch));
 
@@ -78,5 +81,41 @@ public class DeviceService {
     public void forceCreate(Long id, String name, String type, String serialNumber, Long branchId) {
         var branch = branchRepository.findById(branchId).orElseThrow();
         deviceRepository.save(new Device(id, name, type, serialNumber, branch));
+    }
+
+    public void adjustNodesFromMaster(Long nodeId) {
+
+        try {
+            lock.acquire();
+
+            branchRepository.findById(nodeId)
+                .orElseThrow()
+                .getDevices()
+                .forEach(d -> {
+                    var branch = getNextAvailableBranch();
+                    d.setBranch(getNextAvailableBranch());
+                    deviceRepository.save(d);
+
+                    var message = String.format(
+                        "UPATE-DEVICE-BRANCH;%s;%s",
+                        d.getId(),
+                        branch.getId()
+                    );
+                    nodeRepository.getOtherNodes().forEach(n -> client.sendMessage(n, new Message(node_n, message, LocalDateTime.now())));
+                });
+
+            lock.release();
+        } catch (InterruptedException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    public void updateDeviceBranch(Long deviceId, Long branchId) {
+        var branch = branchRepository.findById(branchId).orElseThrow();
+        var device = deviceRepository.findById(deviceId).orElseThrow();
+
+        device.setBranch(branch);
+
+        deviceRepository.save(device);
     }
 }

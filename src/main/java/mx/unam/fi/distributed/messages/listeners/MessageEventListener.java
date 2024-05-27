@@ -7,6 +7,7 @@ import mx.unam.fi.distributed.messages.messages.Message;
 import mx.unam.fi.distributed.messages.repositories.NodeRepository;
 import mx.unam.fi.distributed.messages.services.AppUserService;
 import mx.unam.fi.distributed.messages.services.DeviceService;
+import mx.unam.fi.distributed.messages.settings.TokenInfo;
 import mx.unam.fi.distributed.messages.storage.MessageRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
@@ -55,6 +56,11 @@ public class MessageEventListener implements ApplicationListener<MessageEvent>{
                         lock.release();
 
                         Thread.yield();
+                        try {
+                            Thread.sleep(200);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
 
                         try {
                             lock.acquire();
@@ -62,6 +68,17 @@ public class MessageEventListener implements ApplicationListener<MessageEvent>{
                             throw new RuntimeException(e);
                         }
 
+                        // Notifica a quién le manda el token
+                        client.sendMessage(
+                            nodeRepository.getNode(masterId),
+                            new Message(
+                                nodeN,
+                                String.format("HAS-TOKEN;%s", nodeRepository.getNextNode(nodeN).id()),
+                                LocalDateTime.now()
+                            )
+                        );
+
+                        // Manda el token al siguiente nodo
                         client.sendMessage(
                             nodeRepository.getNextNode(nodeN),
                             new Message(
@@ -94,6 +111,16 @@ public class MessageEventListener implements ApplicationListener<MessageEvent>{
 
                 case "CREATE-DEVICE-FROM-MASTER":
                     deviceService.forceCreate(Long.parseLong(args[1]), args[2], args[3], args[4], Long.parseLong(args[5]));
+                    break;
+
+                case "UPATE-DEVICE-BRANCH":
+                    deviceService.updateDeviceBranch(Long.parseLong(args[1]), Long.parseLong(args[2]));
+                    break;
+
+                case "HAS-TOKEN":
+
+                    TokenInfo.setCurrentNode(Integer.parseInt(args[1]));
+                    log.info("NODE {} has the token", TokenInfo.getCurrentNodeId());
                     break;
 
                 default:

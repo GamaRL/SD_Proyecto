@@ -8,9 +8,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Repository
 public class NodeRepository {
+
+    private static final Lock lock = new ReentrantLock();
 
     private final Map<Integer, Node> _hosts = Map.of(
         1, new Node("node_1", "10.5.0.5", 1, 5000),

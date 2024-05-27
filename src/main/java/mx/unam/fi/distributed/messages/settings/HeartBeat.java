@@ -1,9 +1,11 @@
 package mx.unam.fi.distributed.messages.settings;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import mx.unam.fi.distributed.messages.client.IClient;
 import mx.unam.fi.distributed.messages.messages.Message;
 import mx.unam.fi.distributed.messages.repositories.NodeRepository;
+import mx.unam.fi.distributed.messages.services.DeviceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,7 +28,9 @@ public class HeartBeat implements Runnable {
      * Envía un mensaje multicast a todos los nodos conocidos.
      */
     private void sendMulticastMessage() {
-        nodeRepository.getNodes().forEach((n) -> client.sendMessage(n, new Message(nodeN, "HELLO", LocalDateTime.now())));
+        nodeRepository
+                .getNodes()
+                .forEach(n -> client.sendMessage(n, new Message(nodeN, "HELLO", LocalDateTime.now())));
     }
 
     @Override
@@ -48,14 +52,17 @@ public class HeartBeat implements Runnable {
 
                 if (masterId == nodeN) {
                     System.out.println("> Yo soy el master");
-                  
-                    //Verifica si era el maestro anteriormente
-                    if (!isMaster) {
+
+                    var currentNodeId = TokenInfo.getCurrentNodeId();
+
+                    log.info("> Current node wih token: {}", currentNodeId);
+                    log.info("{}", nodeRepository.getNodesId());
+
+                    if (!isMaster || !nodeRepository.containsNode(currentNodeId)) {
                         var newToken = String.format("TOKEN;%d", nodeN);
-                        System.out.println("Sending the message...");
-                        log.info("Node: {}", nodeRepository.getNextNode(nodeN));
-                        client.sendMessage(nodeRepository.getNextNode(nodeN), new Message(nodeN, newToken, LocalDateTime.now()));
+                        client.sendMessage(nodeRepository.getNode(nodeN), new Message(nodeN, newToken, LocalDateTime.now()));
                     }
+                    log.info("{}", nodeRepository.getNodesId());
 
                     isMaster = true;
                 } else {
@@ -63,7 +70,7 @@ public class HeartBeat implements Runnable {
                 }
             } catch (InterruptedException e) {
                 isAlive = false;
-                log.info(e.getMessage());
+                log.error("Error {}", e.getMessage());
             }
         }
     }
