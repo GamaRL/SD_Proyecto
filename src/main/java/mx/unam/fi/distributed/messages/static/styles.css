@@ -1,0 +1,42 @@
+body {
+    background-color: #f8f9fa;
+}
+.center-box {
+    max-width: 500px;
+    margin: 50px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 15px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+h1 {
+    color: #ff6600;
+}
+.form-group label {
+    color: #ff6600;
+}
+.form-control {
+    border-radius: 10px;
+}
+.center-box .btn {
+    background-color: #ff6600;
+    color: white;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    transition: background-color 0.3s ease;
+}
+.center-box .btn:hover {
+    background-color: #cc5200;
+}
+.icon {
+    color: #ff6600;
+    margin-right: 10px;
+}
+.d-flex {
+    display: flex;
+    align-items: center;
+}
+.ml-2 {
+    margin-left: 10px;
+}
