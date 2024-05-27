@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Proyecto</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        function toggleList() {
+            const selection = document.getElementById("roleSelect").value;
+            const engineerList = document.getElementById("engineerList");
+            const userList = document.getElementById("userList");
+
+            if (selection === "Ingeniero") {
+                engineerList.style.display = "block";
+                userList.style.display = "none";
+            } else if (selection === "Usuario") {
+                engineerList.style.display = "none";
+                userList.style.display = "block";
+            } else {
+                engineerList.style.display = "none";
+                userList.style.display = "none";
+            }
+        }
+
+        function redirectBasedOnSelection() {
+            const role = document.getElementById("roleSelect").value;
+            const engineer = document.getElementById("engineerSelect").value;
+            const user = document.getElementById("userSelect").value;
+
+            if (role === "Ingeniero" && engineer) {
+                window.location.href = "ingeniero.html";
+            } else if (role === "Usuario" && user) {
+                window.location.href = "usuario.html";
+            } else {
+                alert("Por favor, seleccione un rol y una opción de la lista.");
+            }
+        }
+    </script>
+</head>
+<body onload="toggleList()">
+<nav class="navbar navbar-dark bg-dark justify-content-between">
+    <a class="navbar-brand" href="#">
+        <i class="fa fa-ticket icon"></i>
+        Control de tickets
+    </a>
+    <div class="text-white-50">
+        Sucursal <span th:text="${node_n}"/>
+    </div>
+</nav>
+<div class="container my-5">
+    <div class="center-box">
+
+        <div class="form-group">
+            <label for="roleSelect">Selecciona un rol:</label>
+            <select class="form-control" id="roleSelect" name="roleSelect" onchange="toggleList()">
+                <option value="">Selecciona...</option>
+                <option value="Ingeniero">Ingeniero</option>
+                <option value="Usuario">Usuario</option>
+            </select>
+        </div>
+
+        <div id="engineerList" class="form-group" style="display:none;">
+            <label for="engineerSelect">Selecciona un ingeniero:</label>
+            <select class="form-control" id="engineerSelect" name="engineerSelect">
+                <option th:each="engineer : ${engineers}" th:text="${engineer.getName()}" th:value="${engineer.getId()}">Ingeniero por defecto</option>
+            </select>
+        </div>
+
+        <div id="userList" class="form-group" style="display:none;">
+            <label for="userSelect">Selecciona un usuario:</label>
+            <select class="form-control" id="userSelect" name="userSelect">
+                <option th:each="user : ${users}" th:text="${user.getName()}" th:value="${user.getId()}">Usuario por defecto</option>
+            </select>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <a href="@{/home}" class="btn btn-block btn-secondary">Crear usuario</a>
+            </div>
+            <div class="col">
+                <a href="@{/home}" class="btn btn-block btn-secondary">Crear ingeniero</a>
+            </div>
+            <div class="col">
+                <button class="btn btn-block btn-primary" onclick="redirectBasedOnSelection()">Ingresar</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

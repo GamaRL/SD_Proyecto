@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.concurrent.Semaphore;
 
 @Service
@@ -25,6 +26,10 @@ public class AppUserService {
 
     @Value("${app.server.node_n}")
     private int node_n;
+
+    public List<AppUser> getAll() {
+        return appUserRepository.findAll();
+    }
 
     /**
      * Método para realizar la inserción de un usuario desde el mismo nodo de ejecución. A través

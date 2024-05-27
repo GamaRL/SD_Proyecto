@@ -7,6 +7,7 @@ import mx.unam.fi.distributed.messages.messages.Message;
 import mx.unam.fi.distributed.messages.repositories.NodeRepository;
 import mx.unam.fi.distributed.messages.services.AppUserService;
 import mx.unam.fi.distributed.messages.services.DeviceService;
+import mx.unam.fi.distributed.messages.services.EngineerService;
 import mx.unam.fi.distributed.messages.settings.TokenInfo;
 import mx.unam.fi.distributed.messages.storage.MessageRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,6 +35,7 @@ public class MessageEventListener implements ApplicationListener<MessageEvent>{
     private final NodeRepository nodeRepository;
     private final AppUserService appUserService;
     private final DeviceService deviceService;
+    private final EngineerService engineerService;
 
     @Value("${app.server.node_n}")
     private int nodeN;
@@ -100,6 +102,12 @@ public class MessageEventListener implements ApplicationListener<MessageEvent>{
                 case "CREATE-APP-USER":
 
                     appUserService.forceCreate(Long.parseLong(args[1]), args[2], args[3], args[4]);
+
+                    break;
+
+                case "CREATE-ENGINEER":
+
+                    engineerService.forceCreate(Long.parseLong(args[1]), args[2], args[3]);
 
                     break;
 
