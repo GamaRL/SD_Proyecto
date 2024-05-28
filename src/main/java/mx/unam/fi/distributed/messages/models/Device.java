@@ -7,12 +7,19 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+/**
+ * Representa un dispositivo en el sistema.
+ */
 @Entity
 @Table(name = "device")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Device {
+
+    /**
+     * El identificador único del dispositivo.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "device_id")

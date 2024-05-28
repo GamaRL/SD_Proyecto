@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+/**
+ * Representa una sucursal en el sistema distribuido.
+ */
 @Entity
 @Table
 @Data
@@ -14,6 +17,10 @@ import java.util.List;
 @NoArgsConstructor
 public class Branch {
 
+    /**
+     * El identificador único de la sucursal.
+     * Generado automáticamente por la base de datos.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "branch_id")
