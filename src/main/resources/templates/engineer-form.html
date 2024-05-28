@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Proyecto</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark justify-content-between">
+    <a class="navbar-brand" href="/">
+        <i class="fa fa-ticket icon"></i>
+        Control de tickets
+    </a>
+    <div class="text-white-50">
+        Sucursal <span th:text="${node_n}"/>
+    </div>
+</nav>
+
+<div class="container my-5">
+    <div class="center-box">
+        <h1 class="text-center">
+            Crear nuevo ingeniero
+        </h1>
+        <form action="/engineer/create" method="POST">
+            <div class="form-group">
+                <label for="engineerName">Nombre</label>
+                <input type="text" class="form-control" id="engineerName" name="engineerName" required>
+            </div>
+
+            <div class="form-group">
+                <label for="engineerSpeciality">Especialidad</label>
+                <select class="form-control" id="engineerSpeciality" name="engineerSpeciality">
+                    <option th:text="Computadoras" th:value="Computadoras"/>
+                    <option th:text="Impresoras" th:value="Impresoras"/>
+                    <option th:text="Software" th:value="Hardware"/>
+                </select>
+            </div>
+
+            <div class="row d-flex justify-content-end">
+                <div class="col-4">
+                    <button class="btn btn-block btn-primary" type="submit">Crear</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 public class Device {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "device_id")
     private Long id;
 

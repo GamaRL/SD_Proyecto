@@ -80,13 +80,21 @@
 
         <div class="row">
             <div class="col">
-                <a href="@{/home}" class="btn btn-block btn-secondary">Crear usuario</a>
+                <a th:href="@{/user/create}" class="btn btn-block btn-secondary">Crear usuario</a>
             </div>
             <div class="col">
-                <a href="@{/home}" class="btn btn-block btn-secondary">Crear ingeniero</a>
+                <a th:href="@{/engineer/create}" class="btn btn-block btn-secondary">Crear ingeniero</a>
             </div>
             <div class="col">
                 <button class="btn btn-block btn-primary" onclick="redirectBasedOnSelection()">Ingresar</button>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-6">
+                <ul class="list-group">
+                    <li th:each="device: ${devices}" class="list-group-item" th:text="${device.getName()}"/>
+                </ul>
             </div>
         </div>
     </div>

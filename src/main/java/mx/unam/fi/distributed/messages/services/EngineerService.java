@@ -46,7 +46,7 @@ public class EngineerService {
 
             // Creación de un nuevo ingeniero
             Engineer engineer = new Engineer(null, name, speciality, new ArrayList<>());
-            engineerRepository.save(engineer);
+            engineer = engineerRepository.save(engineer);
 
             var message = String.format("CREATE-ENGINEER;%s;%s;%s", engineer.getId(), engineer.getName(), engineer.getSpeciality());
 

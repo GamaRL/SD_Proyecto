@@ -1,13 +1,16 @@
 package mx.unam.fi.distributed.messages.services;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mx.unam.fi.distributed.messages.client.Client;
 import mx.unam.fi.distributed.messages.messages.Message;
 import mx.unam.fi.distributed.messages.models.Branch;
 import mx.unam.fi.distributed.messages.models.Device;
+import mx.unam.fi.distributed.messages.models.Engineer;
 import mx.unam.fi.distributed.messages.repositories.BranchRepository;
 import mx.unam.fi.distributed.messages.repositories.DeviceRepository;
+import mx.unam.fi.distributed.messages.repositories.EngineerRepository;
 import mx.unam.fi.distributed.messages.repositories.NodeRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -29,9 +32,18 @@ public class DeviceService {
     private final NodeRepository nodeRepository;
     private final Client client;
     private final BranchRepository branchRepository;
+    private final EngineerRepository engineerRepository;
 
     @Value("${app.server.node_n}")
     private int node_n;
+
+    @PostConstruct
+    public void init() {
+
+        branchRepository.save(new Branch(1L, "Sucursal 1", "Call1 1, Colonia 1", new ArrayList<>()));
+        branchRepository.save(new Branch(2L, "Sucursal 2", "Call1 2, Colonia 2", new ArrayList<>()));
+        branchRepository.save(new Branch(3L, "Sucursal 3", "Call1 3, Colonia 3", new ArrayList<>()));
+    }
 
     public Device findById(Long id) {
         return deviceRepository.findById(id).orElse(null);
@@ -41,6 +53,13 @@ public class DeviceService {
         return deviceRepository.findAll()
                 .stream()
                 .filter(d -> d.getTickets().stream().noneMatch(t -> t.getCloseDate() == null))
+                .collect(Collectors.toList());
+    }
+
+    public List<Device> findAllOfCurrentBranch() {
+        return deviceRepository.findAll()
+                .stream()
+                .filter(d -> d.getBranch().getId() == node_n)
                 .collect(Collectors.toList());
     }
 

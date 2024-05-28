@@ -57,20 +57,23 @@ public class TicketService {
             var device = deviceService.findById(deviceId);
             description = description.replace(";", "");
 
-            var ticket = ticketRepository.save(new Ticket(null, invoice, openDate, null, description, user, device, engineer));
 
-            var message = String.format("CREATE-TICKET;%s;%s;%s;%s;%s;%s;%s",
-                    ticket.getId(),
-                    ticket.getInvoice(),
-                    ticket.getOpenDate(),
-                    ticket.getDescription(),
-                    ticket.getUser().getId(),
-                    ticket.getDevice().getId(),
-                    ticket.getEngineer().getId());
+            if (device.getTickets().stream().noneMatch(t -> t.getCloseDate() == null)) {
 
-            nodeRepository
-                    .getOtherNodes()
-                    .forEach(n -> client.sendMessage(n, new Message(node_n, message, LocalDateTime.now())));
+                var ticket = ticketRepository.save(new Ticket(null, invoice, openDate, null, description, user, device, engineer));
+                var message = String.format("CREATE-TICKET;%s;%s;%s;%s;%s;%s;%s",
+                        ticket.getId(),
+                        ticket.getInvoice(),
+                        ticket.getOpenDate(),
+                        ticket.getDescription(),
+                        ticket.getUser().getId(),
+                        ticket.getDevice().getId(),
+                        ticket.getEngineer().getId());
+
+                nodeRepository
+                        .getOtherNodes()
+                        .forEach(n -> client.sendMessage(n, new Message(node_n, message, LocalDateTime.now())));
+            }
 
             globalLock.release();
         } catch (InterruptedException e) {
@@ -78,7 +81,7 @@ public class TicketService {
         }
     }
 
-    public void forceCreate(Long id, String invoice, LocalDateTime openDate, String description, Long userId, Long engineerId, Long deviceId) {
+    public void forceCreate(Long id, String invoice, LocalDateTime openDate, String description, Long userId, Long deviceId, Long engineerId) {
 
         var user = appUserService.findById(userId);
         var engineer = engineerService.findById(engineerId);

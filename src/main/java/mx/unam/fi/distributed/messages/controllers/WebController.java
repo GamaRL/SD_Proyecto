@@ -32,12 +32,30 @@ public class WebController {
 
         var engineers = engineerService.getAll();
         var appUsers = appUserService.getAll();
+        var devices = deviceService.findAllOfCurrentBranch();
 
         model.addAttribute("engineers", engineers);
         model.addAttribute("users", appUsers);
         model.addAttribute("node_n", node_n);
+        model.addAttribute("devices", devices);
 
         return "index";
+    }
+
+    @GetMapping(value = "/engineer/create")
+    public String createEngineerForm(Model model) {
+
+        model.addAttribute("node_n", node_n);
+
+        return "engineer-form";
+    }
+
+    @GetMapping(value = "/user/create")
+    public String createUserForm(Model model) {
+
+        model.addAttribute("node_n", node_n);
+
+        return "user-form";
     }
 
     @GetMapping(value = "/engineer/{engineer_id}")
@@ -68,6 +86,29 @@ public class WebController {
         model.addAttribute("node_n", node_n);
 
         return "user";
+    }
+
+    @PostMapping(value = "/engineer/create")
+    public String createEngineer(
+            @RequestParam("engineerName") String name,
+            @RequestParam("engineerSpeciality") String speciality,
+            Model model) {
+
+        engineerService.create(name, speciality);
+
+        return "redirect:/";
+    }
+
+    @PostMapping(value = "/user/create")
+    public String createUser(
+            @RequestParam("userName") String name,
+            @RequestParam("userEmail") String email,
+            @RequestParam("userTelephone") String telephone,
+            Model model) {
+
+        appUserService.create(name, email, telephone);
+
+        return "redirect:/";
     }
 
     @PostMapping(value = "/device/create")
