@@ -13,8 +13,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.concurrent.Semaphore;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +32,17 @@ public class DeviceService {
 
     @Value("${app.server.node_n}")
     private int node_n;
+
+    public Device findById(Long id) {
+        return deviceRepository.findById(id).orElse(null);
+    }
+
+    public List<Device> findAllAvailable() {
+        return deviceRepository.findAll()
+                .stream()
+                .filter(d -> d.getTickets().stream().noneMatch(t -> t.getCloseDate() == null))
+                .collect(Collectors.toList());
+    }
 
     public void create(String name, String type, String serialNumber) {
 
@@ -61,7 +75,7 @@ public class DeviceService {
 
             var branch = getNextAvailableBranch();
 
-            var device = deviceRepository.save(new Device(null, name, type, serialNumber, branch));
+            var device = deviceRepository.save(new Device(null, name, type, serialNumber, branch, new ArrayList<>()));
 
             var message = String.format("CREATE-DEVICE-FROM-MASTER;%s;%s;%s;%s;%s",
                     device.getId(),
@@ -80,7 +94,7 @@ public class DeviceService {
 
     public void forceCreate(Long id, String name, String type, String serialNumber, Long branchId) {
         var branch = branchRepository.findById(branchId).orElseThrow();
-        deviceRepository.save(new Device(id, name, type, serialNumber, branch));
+        deviceRepository.save(new Device(id, name, type, serialNumber, branch, new ArrayList<>()));
     }
 
     public void adjustNodesFromMaster(Long nodeId) {

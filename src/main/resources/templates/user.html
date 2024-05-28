@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asignación de tickets - Usuario</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        var ticketCounter = 1; // Empezamos con 1 porque no hay tickets preexistentes
+
+        function toggleTicketForm() {
+            var form = document.getElementById("ticketForm");
+            if (form.style.display === "none" || form.style.display === "") {
+                form.style.display = "block";
+            } else {
+                form.style.display = "none";
+            }
+        }
+
+        function saveTicket() {
+            var ticketFolio = document.getElementById("ticketFolio").value;
+            var openDate = document.getElementById("openDate").value;
+            var closeDate = document.getElementById("closeDate").value;
+            var ticketDescription = document.getElementById("ticketDescription").value;
+
+            if (ticketFolio && openDate && closeDate && ticketDescription) {
+                // Agregar un nuevo ticket a la lista
+                var ticketsList = document.getElementById("ticketsList");
+                var option = document.createElement("option");
+                option.value = "ticket" + ticketCounter;
+                option.text = `Folio: ${ticketFolio}, Apertura: ${openDate}, Cierre: ${closeDate}, Descripción: ${ticketDescription}`;
+                ticketsList.add(option);
+                ticketCounter++; // Incrementamos el contador de tickets
+
+                // Limpiar los campos del formulario
+                document.getElementById("ticketFolio").value = "";
+                document.getElementById("openDate").value = "";
+                document.getElementById("closeDate").value = "";
+                document.getElementById("ticketDescription").value = "";
+
+                // Ocultar el formulario
+                toggleTicketForm();
+            } else {
+                alert("Por favor, complete todos los campos del formulario.");
+            }
+        }
+
+        function resolveTicket() {
+            var ticketsList = document.getElementById("ticketsList");
+            if (ticketsList.selectedIndex >= 0) {
+                ticketsList.remove(ticketsList.selectedIndex);
+            } else {
+                alert("Por favor, seleccione un ticket para resolver.");
+            }
+        }
+    </script>
+</head>
+<body>
+<nav class="navbar navbar-dark bg-dark justify-content-between">
+    <a class="navbar-brand" href="/">
+        <i class="fa fa-ticket icon"></i>
+        Control de tickets
+    </a>
+    <div class="text-white-50">
+        Sucursal <span th:text="${node_n}"/>
+    </div>
+</nav>
+<div class="container my-5">
+    <div class="center-box">
+        <h1 class="text-center">
+            Usuario <span th:text="${user.getId()}"/> - <span th:text="${user.getName()}"/>
+        </h1>
+        <p class="text-center">Operaciones del usuario.</p>
+
+        <div>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Folio</th>
+                    <th scope="col">Dispositivo</th>
+                    <th scope="col">Descripción</th>
+                    <th scope="col">Abierto</th>
+                    <th scope="col">Cerrado</th>
+                    <th scope="col">Ingeniero</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="ticket :${user.getTickets()}">
+                    <th scope="row" th:text="${ticket.getInvoice()}"/>
+                    <td th:text="${ticket.getDevice().getName()}"/>
+                    <td th:text="${ticket.getDescription()}"/>
+                    <td th:text="${ticket.getOpenDate()}"/>
+                    <td th:text="${ticket.getCloseDate()}"/>
+                    <td th:text="${ticket.getEngineer().getName()}"/>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="row my-2">
+            <button class="btn btn-block btn-secondary" onclick="toggleTicketForm()">Agregar Ticket</button>
+        </div>
+
+        <div id="ticketForm" style="display: none;" class="my-2">
+            <form action="/ticket/create" method="POST">
+                <div class="form-group">
+                    <label for="ticketDescription">Descripción del Ticket</label>
+                    <input type="text" class="form-control" id="ticketDescription" name="ticketDescription">
+                </div>
+
+                <div class="form-group">
+                    <label for="ticketDeviceId">Descripción del Ticket</label>
+                    <select class="form-control" id="ticketDeviceId" name="ticketDeviceId">
+                        <option th:each="device : ${available_devices}" th:text="${device.getName()}" th:value="${device.getId()}"/>
+                    </select>
+                </div>
+
+                <input type="hidden" name="userId" th:value="${user.getId()}">
+
+                <div class="row d-flex justify-content-end">
+                    <div class="col-4">
+                        <button class="btn btn-block btn-primary" type="submit" onclick="saveTicket()">Guardar Ticket</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="row my-2">
+            <a class="btn btn-block btn-danger" href="/">Salir</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

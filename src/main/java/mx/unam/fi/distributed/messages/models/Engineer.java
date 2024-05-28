@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Table(name = "engineer")
 @Data
@@ -22,4 +24,7 @@ public class Engineer {
 
     @Column(name = "speciality")
     private String speciality;
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "engineer")
+    private List<Ticket> tickets;
 }

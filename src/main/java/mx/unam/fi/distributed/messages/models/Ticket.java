@@ -1,19 +1,23 @@
 package mx.unam.fi.distributed.messages.models;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tickets")
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Ticket {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "ticket_id")
-    private Integer id;
+    private Long id;
 
     @Column(name = "invoice")
     private String invoice;

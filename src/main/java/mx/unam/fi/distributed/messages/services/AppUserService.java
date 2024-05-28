@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
@@ -31,6 +32,10 @@ public class AppUserService {
         return appUserRepository.findAll();
     }
 
+    public AppUser findById(Long id) {
+        return appUserRepository.findById(id).orElse(null);
+    }
+
     /**
      * Método para realizar la inserción de un usuario desde el mismo nodo de ejecución. A través
      * de este método, el usuario se crea, se le asigna un id y se dispara la inserción del usuario
@@ -44,7 +49,7 @@ public class AppUserService {
         try {
             lock.acquire();
 
-            var user = appUserRepository.save(new AppUser(null, name, mail, telephone));
+            var user = appUserRepository.save(new AppUser(null, name, mail, telephone, new ArrayList<>()));
             var message = String.format("CREATE-APP-USER;%s;%s;%s;%s", user.getId(), user.getName(), user.getMail(), user.getTelephone());
 
             // Notificar a los demás nodos
@@ -64,7 +69,7 @@ public class AppUserService {
      * @param telephone el número e teléfono del usuario
      */
     public void forceCreate(Long id, String name, String mail, String telephone) {
-        var user = appUserRepository.save(new AppUser(id, name, mail, telephone));
+        var user = appUserRepository.save(new AppUser(id, name, mail, telephone, new ArrayList<>()));
 
         log.info("User was created: {}", user);
     }
