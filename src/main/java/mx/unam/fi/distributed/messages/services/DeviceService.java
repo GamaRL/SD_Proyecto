@@ -7,7 +7,6 @@ import mx.unam.fi.distributed.messages.client.Client;
 import mx.unam.fi.distributed.messages.messages.Message;
 import mx.unam.fi.distributed.messages.models.Branch;
 import mx.unam.fi.distributed.messages.models.Device;
-import mx.unam.fi.distributed.messages.models.Engineer;
 import mx.unam.fi.distributed.messages.repositories.BranchRepository;
 import mx.unam.fi.distributed.messages.repositories.DeviceRepository;
 import mx.unam.fi.distributed.messages.repositories.EngineerRepository;
@@ -32,7 +31,6 @@ public class DeviceService {
     private final NodeRepository nodeRepository;
     private final Client client;
     private final BranchRepository branchRepository;
-    private final EngineerRepository engineerRepository;
 
     @Value("${app.server.node_n}")
     private int node_n;

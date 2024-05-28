@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class WebController {
 
-    private static final Logger log = LoggerFactory.getLogger(WebController.class);
     private final EngineerService engineerService;
     private final AppUserService appUserService;
     private final DeviceService deviceService;
@@ -91,8 +90,7 @@ public class WebController {
     @PostMapping(value = "/engineer/create")
     public String createEngineer(
             @RequestParam("engineerName") String name,
-            @RequestParam("engineerSpeciality") String speciality,
-            Model model) {
+            @RequestParam("engineerSpeciality") String speciality) {
 
         engineerService.create(name, speciality);
 
@@ -103,8 +101,7 @@ public class WebController {
     public String createUser(
             @RequestParam("userName") String name,
             @RequestParam("userEmail") String email,
-            @RequestParam("userTelephone") String telephone,
-            Model model) {
+            @RequestParam("userTelephone") String telephone) {
 
         appUserService.create(name, email, telephone);
 
