@@ -26,15 +26,21 @@ import java.util.stream.Collectors;
 @Slf4j
 public class DeviceService {
 
+    // Inyección de dependencias necesarias para el servicio
     private final Semaphore lock;
     private final DeviceRepository deviceRepository;
     private final NodeRepository nodeRepository;
     private final Client client;
     private final BranchRepository branchRepository;
 
+    // Identificador del nodo actual, configurado a través de properties
     @Value("${app.server.node_n}")
     private int node_n;
 
+    /**
+     * Método que se ejecuta después de la construcción del bean.
+     * Inicializa las sucursales en el repositorio.
+     */
     @PostConstruct
     public void init() {
 
@@ -43,10 +49,21 @@ public class DeviceService {
         branchRepository.save(new Branch(3L, "Sucursal 3", "Call1 3, Colonia 3", new ArrayList<>()));
     }
 
+    /**
+     * Busca un dispositivo por su ID.
+     *
+     * @param id El ID del dispositivo.
+     * @return El dispositivo encontrado, o null si no se encuentra.
+     */
     public Device findById(Long id) {
         return deviceRepository.findById(id).orElse(null);
     }
 
+    /**
+     * Encuentra todos los dispositivos disponibles.
+     *
+     * @return Lista de dispositivos disponibles.
+     */
     public List<Device> findAllAvailable() {
         return deviceRepository.findAll()
                 .stream()
@@ -54,6 +71,11 @@ public class DeviceService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Encuentra todos los dispositivos de la sucursal actual.
+     *
+     * @return Lista de dispositivos de la sucursal actual.
+     */
     public List<Device> findAllOfCurrentBranch() {
         return deviceRepository.findAll()
                 .stream()
@@ -61,6 +83,14 @@ public class DeviceService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Crea un nuevo dispositivo y envía un mensaje al nodo maestro para su creación.
+     * Utiliza exclusión mutua para evitar conflictos en la creación.
+     *
+     * @param name El nombre del dispositivo.
+     * @param type El tipo de dispositivo.
+     * @param serialNumber El número de serie del dispositivo.
+     */
     public void create(String name, String type, String serialNumber) {
 
         try {
@@ -78,6 +108,11 @@ public class DeviceService {
         }
     }
 
+    /**
+     * Obtiene la siguiente sucursal disponible con menos dispositivos.
+     *
+     * @return La sucursal disponible.
+     */
     private Branch getNextAvailableBranch() {
         return branchRepository.findAllById(nodeRepository.getNodesId().stream().mapToLong(i -> i).boxed().toList())
                 .stream()
@@ -85,6 +120,13 @@ public class DeviceService {
                 .orElseThrow();
     }
 
+    /**
+     * Crea un nuevo dispositivo desde el nodo maestro y distribuye el dispositivo entre las sucursales.
+     *
+     * @param name El nombre del dispositivo.
+     * @param type El tipo de dispositivo.
+     * @param serialNumber El número de serie del dispositivo.
+     */
     public void createFromMaster(String name, String type, String serialNumber) {
 
         try {
@@ -109,11 +151,25 @@ public class DeviceService {
         }
     }
 
+    /**
+     * Fuerza la creación de un dispositivo en una sucursal específica.
+     *
+     * @param id El ID del dispositivo.
+     * @param name El nombre del dispositivo.
+     * @param type El tipo de dispositivo.
+     * @param serialNumber El número de serie del dispositivo.
+     * @param branchId El ID de la sucursal donde se creará el dispositivo.
+     */
     public void forceCreate(Long id, String name, String type, String serialNumber, Long branchId) {
         var branch = branchRepository.findById(branchId).orElseThrow();
         deviceRepository.save(new Device(id, name, type, serialNumber, branch, new ArrayList<>()));
     }
 
+    /**
+     * Ajusta la distribución de dispositivos entre las sucursales desde el nodo maestro.
+     *
+     * @param nodeId El ID del nodo que necesita ajuste.
+     */
     public void adjustNodesFromMaster(Long nodeId) {
 
         try {
@@ -141,6 +197,12 @@ public class DeviceService {
         }
     }
 
+    /**
+     * Actualiza la sucursal de un dispositivo específico.
+     *
+     * @param deviceId El ID del dispositivo.
+     * @param branchId El ID de la nueva sucursal.
+     */
     public void updateDeviceBranch(Long deviceId, Long branchId) {
         var branch = branchRepository.findById(branchId).orElseThrow();
         var device = deviceRepository.findById(deviceId).orElseThrow();
@@ -150,3 +212,4 @@ public class DeviceService {
         deviceRepository.save(device);
     }
 }
+```

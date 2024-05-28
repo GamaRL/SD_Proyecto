@@ -27,6 +27,11 @@ public class TokenPass implements Runnable {
         new Thread(this).start();
     }
 
+    /**
+     * Método principal que se ejecuta en el hilo.
+     * Realiza un ciclo infinito donde intenta adquirir el semáforo, imprime un mensaje,
+     * y luego libera el semáforo.
+     */
     @Override
     public void run() {
 
@@ -41,6 +46,7 @@ public class TokenPass implements Runnable {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
+                // Maneja la excepción de interrupción del hilo y lanza una RuntimeException
                 throw new RuntimeException(e);
             }
         }
