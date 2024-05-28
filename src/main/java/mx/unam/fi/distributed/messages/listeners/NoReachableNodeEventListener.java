@@ -38,6 +38,7 @@ public class NoReachableNodeEventListener implements ApplicationListener<NoReach
                 .mapToInt(i -> i)
                 .max().orElse(nodeN);
 
+        // Si un nodo se cayó, redistribuir los dispositivos
         if (nodeN == masterId) {
             new Thread(() -> deviceService.adjustNodesFromMaster((long) event.getNode().id())).start();
         }

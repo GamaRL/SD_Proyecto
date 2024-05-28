@@ -12,7 +12,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Repositorio para almacenar y administrar información sobre los
+ * Repositorio para almacenar y administrar el estado actual de los
  * nodos en el sistema distribuido.
  */
 @Repository

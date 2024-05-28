@@ -56,12 +56,15 @@ public class MessageEventListener implements ApplicationListener<MessageEvent>{
             var masterId = nodeRepository.getNodesId().stream().mapToInt(i -> i).max().orElse(nodeN);
 
             switch (type) {
+
+                // Cuando el token se recibe (se permiten modificaciones)
                 case "TOKEN":
                     if (masterId == Integer.parseInt(args[1])) {
-                        System.out.println(lock.availablePermits());
 
+                        // Liberar el semáforo
                         lock.release();
 
+                        // Ceder la ejecución a otro hilo
                         Thread.yield();
                         try {
                             Thread.sleep(200);
@@ -69,13 +72,14 @@ public class MessageEventListener implements ApplicationListener<MessageEvent>{
                             throw new RuntimeException(e);
                         }
 
+                        // Bloquear el semáforo
                         try {
                             lock.acquire();
                         } catch (InterruptedException e) {
                             throw new RuntimeException(e);
                         }
 
-                        // Notifica a quién le manda el token
+                        // Se notifica al master a quién se manda el token
                         client.sendMessage(
                             nodeRepository.getNode(masterId),
                             new Message(
@@ -97,6 +101,7 @@ public class MessageEventListener implements ApplicationListener<MessageEvent>{
                     }
                     break;
 
+                // Mensaje de heartbeat
                 case "HELLO":
 
                     if (!nodeRepository.containsNode(message.from()))
@@ -104,38 +109,44 @@ public class MessageEventListener implements ApplicationListener<MessageEvent>{
 
                     break;
 
+                // Mensaje de creación de un usuario
                 case "CREATE-APP-USER":
 
                     appUserService.forceCreate(Long.parseLong(args[1]), args[2], args[3], args[4]);
 
                     break;
 
+                // Mensaje de creación de un ingeniero
                 case "CREATE-ENGINEER":
 
                     engineerService.forceCreate(Long.parseLong(args[1]), args[2], args[3]);
 
                     break;
 
+                // Notificar al master que cree un dispositivo
                 case "CREATE-DEVICE-TO-MASTER":
                     if (masterId == nodeN) {
                         deviceService.createFromMaster(args[1], args[2], args[3]);
                     }
                     break;
 
+                // Notificación del master para crear un dispositivo
                 case "CREATE-DEVICE-FROM-MASTER":
                     deviceService.forceCreate(Long.parseLong(args[1]), args[2], args[3], args[4], Long.parseLong(args[5]));
                     break;
 
+                // Actualización de la sucursal de un dispositivo
                 case "UPATE-DEVICE-BRANCH":
                     deviceService.updateDeviceBranch(Long.parseLong(args[1]), Long.parseLong(args[2]));
                     break;
 
+                // Notificación que llega al master acerca de quién tiene el token
                 case "HAS-TOKEN":
-
                     TokenInfo.setCurrentNode(Integer.parseInt(args[1]));
                     log.info("NODE {} has the token", TokenInfo.getCurrentNodeId());
                     break;
 
+                // Notificación para la creación de un ticket
                 case "CREATE-TICKET":
                     ticketService.forceCreate(
                             Long.parseLong(args[1]),
@@ -148,6 +159,7 @@ public class MessageEventListener implements ApplicationListener<MessageEvent>{
                     );
                     break;
 
+                // Notificación del cierre de un ticket
                 case "CLOSE-TICKET":
                     ticketService.forceClose(Long.parseLong(args[1]), LocalDateTime.parse(args[2]));
                     break;
@@ -157,6 +169,7 @@ public class MessageEventListener implements ApplicationListener<MessageEvent>{
             }
         };
 
+        // Procesar el mensaje en otro nodo
         executor.execute(process);
     }
 
@@ -171,6 +184,7 @@ public class MessageEventListener implements ApplicationListener<MessageEvent>{
                 var out = new ObjectOutputStream(socket.getOutputStream());
                 var in = new ObjectInputStream(socket.getInputStream())
         ) {
+            // Lectura del mensaje enviado
             message = (Message) in.readObject();
             response = new Message(nodeN, "ACCEPTED", LocalDateTime.now());
             out.writeObject(response);
@@ -179,6 +193,7 @@ public class MessageEventListener implements ApplicationListener<MessageEvent>{
             log.info("An unexpected error occurred '{}'", e.getMessage());
         }
 
+        // Procesar el mensaje
         try {
             if (message != null) {
                 processMessage(message);

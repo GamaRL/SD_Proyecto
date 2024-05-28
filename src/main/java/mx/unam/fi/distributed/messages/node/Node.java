@@ -5,7 +5,7 @@ package mx.unam.fi.distributed.messages.node;
  */
 public record Node(
         String name,    // Nombre del nodo
-        String host,    // Direccion IP
-        int id,         // ID unico
+        String host,    // Dirección IP
+        int id,         // ID único
         int port        // Puerto       
 ) {}

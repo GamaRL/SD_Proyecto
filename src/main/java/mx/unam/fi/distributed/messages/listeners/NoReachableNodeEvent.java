@@ -6,8 +6,8 @@ import org.springframework.context.ApplicationEvent;
 
 
 /**
- * Es usada cuando se produce una excepcion de nodo inalcanzable.
- * Un nodo se vuelve inalcanzable cuando se pasa el tiempo de espera o algun
+ * Es usada cuando se produce una excepción de nodo inalcanzable.
+ * Un nodo se vuelve inalcanzable cuando se pasa el tiempo de espera o algún
  * error en el socket.
  */
 @Getter

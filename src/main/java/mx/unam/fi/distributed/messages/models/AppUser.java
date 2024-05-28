@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * Representa un usuario de la aplicación en el sistema distribuido.
- * Columnas: ID, nombre, email, telefono.
+ * Columnas: ID, nombre, email, teléfono.
  */
 @Entity
 @Table(name = "app_user")
