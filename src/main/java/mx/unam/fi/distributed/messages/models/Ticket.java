@@ -7,6 +7,10 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+/**
+ * Representa un ticket dentro del sistema distribuido.
+ * Joins: Haciendo referencias a claves primarias de otras tablas relacionadas con la info del ticket.
+ */
 @Entity
 @Table(name = "tickets")
 @Data

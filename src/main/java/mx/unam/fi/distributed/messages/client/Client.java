@@ -14,6 +14,10 @@ import java.io.ObjectOutputStream;
 import java.net.*;
 import java.util.Optional;
 
+/**
+ * Envia mensajes a otros nodos y manejar situaciones en 
+ * las que los nodos de destino no están disponibles.
+ */
 @Service
 @AllArgsConstructor
 @Slf4j

@@ -67,7 +67,9 @@ public class MessageServer implements IMessageServer {
     public void run() {
 
         try {
+            // Mientras el servidor este vivo, se ejecuta.
             while (isAlive()) {
+                // Se acepta una nueva conexión entrante y se publica un evento de mensaje
                 eventPublisher.publishEvent(new MessageEvent(this, socket.accept()));
             }
         } catch(Exception e) {
