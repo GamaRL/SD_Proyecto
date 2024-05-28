@@ -10,6 +10,10 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.net.ServerSocket;
 
+/**
+ * Servicio que implementa un servidor de mensajes del sistema distribuido.
+ * Este servidor escucha en un puerto específico, acepta conexiones y publica eventos de mensajes.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -24,6 +28,10 @@ public class MessageServer implements IMessageServer {
     private final ApplicationEventPublisher eventPublisher;
 
 
+    /**
+     * Inicia el servidor de mensajes, escuchando en el puerto configurado.
+     * @throws IOException si ocurre un error al abrir el socket del servidor.
+     */
     @Override
     public void listen() throws IOException {
         socket = new ServerSocket(port);
@@ -31,6 +39,10 @@ public class MessageServer implements IMessageServer {
         log.info("Message server is listening on port {}", port);
     }
 
+    /**
+     * Detiene el servidor de mensajes y cierra el socket.
+     * @throws IOException si ocurre un error al cerrar el socket del servidor.
+     */
     @Override
     public void kill() throws IOException {
         isAlive = false;
@@ -38,16 +50,26 @@ public class MessageServer implements IMessageServer {
         log.info("Message server is down");
     }
 
+    /**
+     * Verifica si el servidor de mensajes está activo.
+     * @return true si el servidor está activo, false en caso contrario.
+     */
     @Override
     public boolean isAlive() {
         return isAlive;
     }
 
+    /**
+     * Método que se ejecuta en un hilo separado para aceptar conexiones entrantes.
+     * Publica un evento de mensaje por cada conexión aceptada.
+     */
     @Override
     public void run() {
 
         try {
+            // Mientras el servidor este vivo, se ejecuta.
             while (isAlive()) {
+                // Se acepta una nueva conexión entrante y se publica un evento de mensaje
                 eventPublisher.publishEvent(new MessageEvent(this, socket.accept()));
             }
         } catch(Exception e) {

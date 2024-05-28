@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
+/**
+ * Escucha los eventos de nodos no disponibles para eliminarlos del repositorio.
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -21,6 +24,10 @@ public class NoReachableNodeEventListener implements ApplicationListener<NoReach
     @Value("${app.server.node_n}")
     private int nodeN;
 
+    /**
+     * Maneja el evento de un nodo no disponible.
+     * @param event Evento del nodo no disponible.
+     */
     @Override
     public void onApplicationEvent(NoReachableNodeEvent event) {
         nodeRepository.removeNode(event.getNode().id());

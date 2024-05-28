@@ -7,6 +7,10 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+/**
+ * Representa un usuario de la aplicación en el sistema distribuido.
+ * Columnas: ID, nombre, email, telefono.
+ */
 @Entity
 @Table(name = "app_user")
 @Data

@@ -7,13 +7,18 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+/**
+ * Representa un ingeniero en el sistema distribuido.
+ */
 @Entity
 @Table(name = "engineer")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Engineer {
-
+    /**
+     * El identificador único del ingeniero.
+     */
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name = "engineer_id")

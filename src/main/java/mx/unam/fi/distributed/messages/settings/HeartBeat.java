@@ -24,6 +24,9 @@ public class HeartBeat implements Runnable {
     @Value("${app.server.node_n}")
     private int nodeN;
 
+    /**
+     * Envía un mensaje multicast a todos los nodos conocidos.
+     */
     private void sendMulticastMessage() {
         nodeRepository
                 .getNodes()
@@ -38,10 +41,13 @@ public class HeartBeat implements Runnable {
 
         while (isAlive) {
             try {
+                // Pausa la ejecución durante 2 segundos
                 Thread.sleep(2000);
 
+                // Envía un mensaje multicast a todos los nodos
                 sendMulticastMessage();
 
+                // Determina el nodo maestro basándose en el ID más alto
                 int masterId = nodeRepository.getNodesId().stream().mapToInt(i -> i).max().orElse(-1);
 
                 if (masterId == nodeN) {

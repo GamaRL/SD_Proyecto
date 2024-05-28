@@ -23,6 +23,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadPoolExecutor;
 
+/**
+ * Espera los mensajes entrantes de MessageEvent
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j
