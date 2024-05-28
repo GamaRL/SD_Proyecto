@@ -17,9 +17,9 @@ public class NodeRepository {
     private static final Lock lock = new ReentrantLock();
 
     private final Map<Integer, Node> _hosts = Map.of(
-        1, new Node("node_1", "10.5.0.5", 1, 5000),
-        2, new Node("node_2", "10.5.0.6", 2, 5000),
-        3, new Node("node_3", "10.5.0.7", 3, 5000)
+        1, new Node("node_1", "172.16.114.128", 1, 5000),
+        2, new Node("node_2", "172.16.114.129", 2, 5000),
+        3, new Node("node_3", "172.16.114.130", 3, 5000)
         //4, new Node("node_4", "172.16.114.131", 4, 5000)
     );
 
