@@ -8,6 +8,7 @@ import mx.unam.fi.distributed.messages.repositories.NodeRepository;
 import mx.unam.fi.distributed.messages.services.AppUserService;
 import mx.unam.fi.distributed.messages.services.DeviceService;
 import mx.unam.fi.distributed.messages.services.EngineerService;
+import mx.unam.fi.distributed.messages.services.TicketService;
 import mx.unam.fi.distributed.messages.settings.TokenInfo;
 import mx.unam.fi.distributed.messages.storage.MessageRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,6 +37,7 @@ public class MessageEventListener implements ApplicationListener<MessageEvent>{
     private final AppUserService appUserService;
     private final DeviceService deviceService;
     private final EngineerService engineerService;
+    private final TicketService ticketService;
 
     @Value("${app.server.node_n}")
     private int nodeN;
@@ -129,6 +131,22 @@ public class MessageEventListener implements ApplicationListener<MessageEvent>{
 
                     TokenInfo.setCurrentNode(Integer.parseInt(args[1]));
                     log.info("NODE {} has the token", TokenInfo.getCurrentNodeId());
+                    break;
+
+                case "CREATE-TICKET":
+                    ticketService.forceCreate(
+                            Long.parseLong(args[1]),
+                            args[2],
+                            LocalDateTime.parse(args[3]),
+                            args[4],
+                            Long.parseLong(args[5]),
+                            Long.parseLong(args[6]),
+                            Long.parseLong(args[7])
+                    );
+                    break;
+
+                case "CLOSE-TICKET":
+                    ticketService.forceClose(Long.parseLong(args[1]), LocalDateTime.parse(args[2]));
                     break;
 
                 default:

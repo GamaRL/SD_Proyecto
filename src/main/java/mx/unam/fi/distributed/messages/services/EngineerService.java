@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
@@ -32,14 +33,20 @@ public class EngineerService {
         return engineerRepository.findAll();
     }
 
+    public Engineer findById(Long id) {
+        return engineerRepository
+                .findById(id)
+                .orElse(null);
+    }
+
     public void create(String name, String speciality) {
 
         try {
             lock.acquire();
 
             // Creación de un nuevo ingeniero
-            Engineer engineer = new Engineer(null, name, speciality);
-            engineerRepository.save(engineer);
+            Engineer engineer = new Engineer(null, name, speciality, new ArrayList<>());
+            engineer = engineerRepository.save(engineer);
 
             var message = String.format("CREATE-ENGINEER;%s;%s;%s", engineer.getId(), engineer.getName(), engineer.getSpeciality());
 
@@ -53,7 +60,7 @@ public class EngineerService {
     }
 
     public void forceCreate(Long id, String name, String speciality) {
-        Engineer engineer = new Engineer(id, name, speciality);
+        Engineer engineer = new Engineer(id, name, speciality, new ArrayList<>());
         engineerRepository.save(engineer);
     }
 

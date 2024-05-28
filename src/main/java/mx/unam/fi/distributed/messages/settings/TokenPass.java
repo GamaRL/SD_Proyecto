@@ -2,24 +2,28 @@ package mx.unam.fi.distributed.messages.settings;
 
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
-import mx.unam.fi.distributed.messages.client.Client;
+import lombok.RequiredArgsConstructor;
+import mx.unam.fi.distributed.messages.services.AppUserService;
+import mx.unam.fi.distributed.messages.services.DeviceService;
+import mx.unam.fi.distributed.messages.services.EngineerService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.concurrent.Semaphore;
+import java.util.UUID;
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class TokenPass implements Runnable {
 
-    private final Semaphore lock;
+    private final AppUserService appUserService;
+    private final DeviceService deviceService;
+    private final EngineerService engineerService;
 
-    /**
-     * Método de inicialización que se ejecuta después de la construcción del objeto.
-     * Inicia un nuevo hilo que ejecuta el método run() de esta clase.
-     */
+    @Value("${app.server.node_n}")
+    private int node_n;
+
     @PostConstruct
-    void init() 
-    {
+    void init() {
         new Thread(this).start();
     }
 
@@ -30,25 +34,17 @@ public class TokenPass implements Runnable {
      */
     @Override
     public void run() {
-        
+
+        int i = 0;
+
         while (true) {
-            try {
-                // Adquiere el semáforo para asegurar la exclusión mutua
-                lock.acquire();
-            } catch (InterruptedException e) {
-                // Maneja la excepción de interrupción del hilo
-                System.out.println(e.getMessage());
-            }
 
-            // Imprime un mensaje indicando que tiene el token
-            System.out.println("I have the token");
-
-            // Libera el semáforo
-            lock.release();
+            //appUserService.create(String.format("Person %d %d", node_n, i++), UUID.randomUUID().toString(), "555555");
+            //deviceService.create("Nueva compu", "Computer", UUID.randomUUID().toString().substring(0, 5));
+            //engineerService.create("El Inge " + i, "Computers");
 
             try {
-                // Pausa la ejecución del hilo por 500 milisegundos
-                Thread.sleep(500);
+                Thread.sleep(2000);
             } catch (InterruptedException e) {
                 // Maneja la excepción de interrupción del hilo y lanza una RuntimeException
                 throw new RuntimeException(e);

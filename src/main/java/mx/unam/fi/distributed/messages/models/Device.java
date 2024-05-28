@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Table(name = "device")
 @Data
@@ -12,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Device {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "device_id")
     private Long id;
 
@@ -28,4 +30,7 @@ public class Device {
     @ManyToOne
     @JoinColumn(name = "branch_id", referencedColumnName = "branch_id")
     private Branch branch;
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "device")
+    private List<Ticket> tickets;
 }

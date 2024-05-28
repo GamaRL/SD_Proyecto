@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Table(name = "app_user")
 @Data
@@ -13,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class AppUser {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "app_user_id")
     private Long id;
 
@@ -25,4 +27,7 @@ public class AppUser {
 
     @Column(name = "telephone")
     private String telephone;
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
+    private List<Ticket> tickets;
 }

@@ -6,7 +6,6 @@
     <title>Mi Proyecto</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="styles.css">
     <script>
         function toggleList() {
             const selection = document.getElementById("roleSelect").value;
@@ -31,9 +30,9 @@
             const user = document.getElementById("userSelect").value;
 
             if (role === "Ingeniero" && engineer) {
-                window.location.href = "ingeniero.html";
+                window.location.href = `engineer/${engineer}`;
             } else if (role === "Usuario" && user) {
-                window.location.href = "usuario.html";
+                window.location.href = `user/${user}`;
             } else {
                 alert("Por favor, seleccione un rol y una opción de la lista.");
             }
@@ -41,8 +40,9 @@
     </script>
 </head>
 <body onload="toggleList()">
+
 <nav class="navbar navbar-dark bg-dark justify-content-between">
-    <a class="navbar-brand" href="#">
+    <a class="navbar-brand" href="/">
         <i class="fa fa-ticket icon"></i>
         Control de tickets
     </a>
@@ -50,6 +50,7 @@
         Sucursal <span th:text="${node_n}"/>
     </div>
 </nav>
+
 <div class="container my-5">
     <div class="center-box">
 
@@ -78,13 +79,21 @@
 
         <div class="row">
             <div class="col">
-                <a href="@{/home}" class="btn btn-block btn-secondary">Crear usuario</a>
+                <a th:href="@{/user/create}" class="btn btn-block btn-secondary">Crear usuario</a>
             </div>
             <div class="col">
-                <a href="@{/home}" class="btn btn-block btn-secondary">Crear ingeniero</a>
+                <a th:href="@{/engineer/create}" class="btn btn-block btn-secondary">Crear ingeniero</a>
             </div>
             <div class="col">
                 <button class="btn btn-block btn-primary" onclick="redirectBasedOnSelection()">Ingresar</button>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-6">
+                <ul class="list-group">
+                    <li th:each="device: ${devices}" class="list-group-item" th:text="${device.getName()}"/>
+                </ul>
             </div>
         </div>
     </div>
