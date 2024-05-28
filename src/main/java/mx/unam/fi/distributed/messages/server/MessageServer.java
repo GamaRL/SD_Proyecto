@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.net.ServerSocket;
 
+/**
+ * Servidor encargado de escuchar conexiones entrantes y publicar eventos de mensajes.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -47,7 +50,9 @@ public class MessageServer implements IMessageServer {
     public void run() {
 
         try {
+            // Mientras el servidor este vivo, se ejecuta.
             while (isAlive()) {
+                // Se acepta una nueva conexión entrante y se publica un evento de mensaje
                 eventPublisher.publishEvent(new MessageEvent(this, socket.accept()));
             }
         } catch(Exception e) {
